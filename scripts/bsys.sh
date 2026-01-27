@@ -5,15 +5,6 @@ export DEBDIR=/home/build/build/debootstrap
 KVER=6.18.7
 VMLINUX=/home/build/build/debootstrap/bzImage
 
-#Cleanup function
-cleanup_chroot() {
-    sudo umount -l "$DEBDIR/chroot/dev/pts" || true
-    sudo umount -l "$DEBDIR/chroot/dev" || true
-    sudo umount -l "$DEBDIR/chroot/sys" || true
-    sudo umount -l "$DEBDIR/chroot/proc" || true
-}
-trap cleanup_chroot EXIT
-
 #Remove old chroot
 sudo rm -rf "$DEBDIR/chroot"
 
@@ -29,6 +20,15 @@ sudo cp "$DEBDIR/bzImage" /srv/tftp/vmlinuz
 
 #Make empty module directory
 sudo mkdir -p "$DEBDIR/chroot/lib/modules/$KVER"
+
+#Cleanup function
+cleanup_chroot() {
+    sudo umount -l "$DEBDIR/chroot/dev/pts" || true
+    sudo umount -l "$DEBDIR/chroot/dev" || true
+    sudo umount -l "$DEBDIR/chroot/sys" || true
+    sudo umount -l "$DEBDIR/chroot/proc" || true
+}
+trap cleanup_chroot EXIT
 
 #Mount for chroot
 sudo mount --make-rprivate /
@@ -55,12 +55,12 @@ sudo cp $DEBDIR/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 
 #Cleanup unnecessary files
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
-apt-get clean
 rm -rf /var/cache/apt/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* /usr/share/info/*
 apt-get purge -y initramfs-tools
 apt-get autoremove -y
+apt-get clean
 echo 'root:root' | chpasswd
-#/usr/bin/busybox --install
+/usr/bin/busybox --install
 "
 
 #Enable Networking
