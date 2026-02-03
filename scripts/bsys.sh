@@ -11,7 +11,7 @@ sudo rm -rf "$DEBDIR/chroot"
 
 #Boostrap Debian rootfs
 sudo debootstrap --arch=amd64 --variant=minbase \
-	--include=bash,coreutils,apt,curl,ca-certificates,live-boot,fio,openssh-server,vim,tmux,tree,dbus,dbus-daemon,iproute2,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
+	--include=bash,coreutils,apt,curl,ca-certificates,live-boot,fio,openssh-server,vim,tmux,tree,dbus,dbus-daemon,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable $DEBDIR/chroot http://deb.debian.org/debian 
 
 #Copy already built kernel into chroot
@@ -55,14 +55,33 @@ update-initramfs -c -k $KVER       # create fresh initramfs for the kernel
 #Copy initramfs for pxe boot
 sudo cp $DEBDIR/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 
+#Enable Bash aliases
+echo -e "\nsource ~/.bash_aliases" | sudo tee -a $DEBDIR/chroot/root/.bashrc
+
+#Install PERCCLI and configure
+sudo cp $DEBDIR/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb $DEBDIR/chroot/root/perccli.deb
+sudo chroot "$DEBDIR/chroot" /bin/bash -c "
+dpkg -i /root/perccli.deb
+"
+echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a $DEBDIR/chroot/root/.bash_aliases
+
+#Run custommizations
+sudo cp $DEBDIR/customize.sh $DEBDIR/chroot/root/
+sudo chroot "$DEBDIR/chroot" /bin/bash -c "
+sh /root/customize.sh
+"
+
+
 #Cleanup unnecessary files
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
 rm -rf /var/cache/apt/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* /usr/share/info/*
-apt-get purge -y initramfs-tools
+apt-get purge -y initramfs-tools git
 apt-get autoremove -y
 apt-get clean
 echo 'root:root' | chpasswd
 /usr/bin/busybox --install
+rm /root/perccli.deb
+rm /root/customize.sh
 "
 sudo rm -rf $DEBDIR/chroot/boot
 
