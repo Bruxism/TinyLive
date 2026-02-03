@@ -4,22 +4,23 @@ set -e
 export DEBDIR=/home/build/build/debootstrap
 KVER=6.18.7
 VMLINUX=/home/build/build/debootstrap/bzImage
+kernelfiles=/home/build/build/debootstrap/kernelfiles
 
 #Remove old chroot
 sudo rm -rf "$DEBDIR/chroot"
 
 #Boostrap Debian rootfs
 sudo debootstrap --arch=amd64 --variant=minbase \
-	--include=bash,coreutils,apt,curl,ca-certificates,live-boot,fio,openssh-server,vim,tmux,tree,iproute2,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
+	--include=bash,coreutils,apt,curl,ca-certificates,live-boot,fio,openssh-server,vim,tmux,tree,dbus,dbus-daemon,iproute2,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable $DEBDIR/chroot http://deb.debian.org/debian 
 
 #Copy already built kernel into chroot
 sudo mkdir -p "$DEBDIR/chroot/boot"
-sudo cp "$DEBDIR/bzImage" "$DEBDIR/chroot/boot/vmlinuz-$KVER"
-sudo cp "$DEBDIR/bzImage" /srv/tftp/vmlinuz
+sudo cp -r $kernelfiles/kernel/. $DEBDIR/chroot/boot/
+sudo cp "$kernelfiles/kernel/vmlinuz-6.18.7" /srv/tftp/vmlinuz
 
-#Make empty module directory
-sudo mkdir -p "$DEBDIR/chroot/lib/modules/$KVER"
+#Copy modules
+sudo cp -R $kernelfiles/modules/lib/. $DEBDIR/chroot/lib/
 
 #Cleanup function
 cleanup_chroot() {
@@ -39,9 +40,10 @@ sudo mount --bind /dev/pts "$DEBDIR/chroot/dev/pts"
 
 #Configure initramfs-tools to build without modules
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
-cat <<'EOF' > /etc/initramfs-tools/conf.d/nomodules.conf
+cat <<'EOF' > /etc/initramfs-tools/conf.d/settings.conf
 MODULES=list
 BUSYBOX=y
+COMPRESS=xz
 EOF
 "
 
@@ -62,6 +64,7 @@ apt-get clean
 echo 'root:root' | chpasswd
 /usr/bin/busybox --install
 "
+sudo rm -rf $DEBDIR/chroot/boot
 
 #Enable Networking
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
@@ -72,6 +75,14 @@ Name=*
 [Network]
 DHCP=yes
 EOF
+"
+
+#Copy ZFS module and /etc files
+sudo tar kxvJf $DEBDIR/zfs.tar.xz -C $DEBDIR/chroot/
+
+#Activate modules and zfs systemd service files
+sudo chroot "$DEBDIR/chroot" /bin/bash -c "
+depmod -a $KVER
 "
 
 #Add authorized keys

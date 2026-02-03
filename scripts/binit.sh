@@ -63,6 +63,14 @@ echo 'root:root' | chpasswd
 /usr/bin/busybox --install
 "
 
+#Copy modules
+sudo tar xJf "$DEBDIR/modules.tar.xz" -C "$DEBDIR/chroot"
+
+#Activate modules
+sudo chroot "$DEBDIR/chroot" /bin/bash -c "
+depmod -a $KVER
+"
+
 #Add authorized keys
 sudo mkdir -p -m 0700 $DEBDIR/chroot/root/.ssh
 sudo cp "$DEBDIR/authorized_keys" "$DEBDIR/chroot/root/.ssh/"
