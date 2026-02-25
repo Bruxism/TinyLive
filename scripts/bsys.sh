@@ -2,7 +2,7 @@
 set -e
 
 export DEBDIR=/home/build/build/debootstrap
-KVER=6.18.7
+KVER=6.12.73
 VMLINUX=/home/build/build/debootstrap/bzImage
 kernelfiles=/home/build/build/debootstrap/kernelfiles
 
@@ -17,7 +17,7 @@ sudo debootstrap --arch=amd64 --variant=minbase \
 #Copy already built kernel into chroot
 sudo mkdir -p "$DEBDIR/chroot/boot"
 sudo cp -r $kernelfiles/kernel/. $DEBDIR/chroot/boot/
-sudo cp "$kernelfiles/kernel/vmlinuz-6.18.7" /srv/tftp/vmlinuz
+sudo cp "$kernelfiles/kernel/vmlinuz-$KVER" /srv/tftp/vmlinuz
 
 #Copy modules
 sudo cp -R $kernelfiles/modules/lib/. $DEBDIR/chroot/lib/
@@ -97,7 +97,7 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-sudo tar kxvJf $DEBDIR/zfs.tar.xz -C $DEBDIR/chroot/
+sudo rsync -r --ignore-existing /home/build/compiled/zfs/. $DEBDIR/chroot/
 
 #Activate modules and zfs systemd service files
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
