@@ -11,7 +11,7 @@ sudo rm -rf "$DEBDIR/chroot"
 
 #Boostrap Debian rootfs
 sudo debootstrap --arch=amd64 --variant=minbase \
-	--include=bash,coreutils,apt,curl,ca-certificates,live-boot,fio,openssh-server,vim,tmux,tree,dbus,dbus-daemon,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
+	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,hdparm,sdparm,sg3-utils,nvme-cli,smartmontools,vim,tmux,tree,dbus,dbus-daemon,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable $DEBDIR/chroot http://deb.debian.org/debian 
 
 #Copy already built kernel into chroot
@@ -65,10 +65,20 @@ dpkg -i /root/perccli.deb
 "
 echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a $DEBDIR/chroot/root/.bash_aliases
 
-#Run custommizations
+#Run customizations
 sudo cp $DEBDIR/customize.sh $DEBDIR/chroot/root/
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
 sh /root/customize.sh
+"
+
+#Copy man_reinstall.sh to be run manually when system is booted
+sudo cp $DEBDIR/man_reinstall.sh $DEBDIR/chroot/root
+
+#Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
+sudo cp $DEBDIR/man_reinstall.service $DEBDIR/chroot/etc/systemd/system
+sudo chroot "$DEBDIR/chroot" /bin/bash -c "
+systemctl enable systemd-networkd-wait-online
+systemctl enable man_reinstall.service
 "
 
 
@@ -97,7 +107,7 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-sudo rsync -r --ignore-existing /home/build/compiled/zfs/. $DEBDIR/chroot/
+sudo rsync -rl --ignore-existing /home/build/compiled/zfs/. $DEBDIR/chroot/
 
 #Activate modules and zfs systemd service files
 sudo chroot "$DEBDIR/chroot" /bin/bash -c "
