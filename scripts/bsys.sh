@@ -2,10 +2,11 @@
 set -e
 
 export DEBDIR=/home/build/build/debootstrap
-KVER=6.12.83
-BZIMAGE=/home/build/compiled/kernel/bzImage
-kernelfiles=/home/build/build/debootstrap/kernelfiles
-modulefiles=/home/build/compiled/modules
+KERNELFILES=/home/build/compiled/kernel
+MODULEFILES=/home/build/compiled/modules
+
+kernel="$(ls ${KERNELFILES}/vmlinuz-*)"
+kver="${kernel#*-}"
 
 #Remove old chroot
 sudo rm -rf "${DEBDIR}"/chroot
@@ -13,15 +14,16 @@ sudo rm -rf "${DEBDIR}"/chroot
 #Boostrap Debian rootfs
 sudo debootstrap --arch=amd64 --variant=minbase \
 	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,vim,tmux,tree,dbus,dbus-daemon,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
-	stable ${DEBDIR}/chroot http://deb.debian.org/debian
+	stable "${DEBDIR}/chroot" http://deb.debian.org/debian
 
 #Copy already built kernel into chroot
 sudo mkdir -p "${DEBDIR}"/chroot/boot
-sudo cp -r "${kernelfiles}"/kernel/. "${DEBDIR}"/chroot/boot/
-sudo cp "${BZIMAGE}" /srv/tftp/vmlinuz
+sudo cp "${KERNELFILES}"/config-* "${DEBDIR}"/chroot/boot/
+sudo cp "${kernel}" "${DEBDIR}"/chroot/boot/
+sudo cp "${kernel}" /srv/tftp/vmlinuz
 
 #Copy modules
-sudo rsync -a --filter='- l *' "${modulefiles}"/lib/. "${DEBDIR}"/chroot/lib/
+sudo rsync -a --no-links "${MODULEFILES}"/lib/. "${DEBDIR}"/chroot/lib/
 
 #Cleanup function
 cleanup_chroot() {
@@ -34,8 +36,8 @@ trap cleanup_chroot EXIT
 
 #Mount for chroot
 sudo mount --make-rprivate /
-sudo mount -t proc /proc ${DEBDIR}/chroot/proc
-sudo mount -t sysfs /sys ${DEBDIR}/chroot/sys
+sudo mount -t proc /proc "${DEBDIR}/chroot/proc"
+sudo mount -t sysfs /sys "${DEBDIR}/chroot/sys"
 sudo mount --bind /dev "${DEBDIR}/chroot/dev"
 sudo mount --bind /dev/pts "${DEBDIR}/chroot/dev/pts"
 
@@ -50,7 +52,7 @@ EOF
 
 #Generate initramfs
 sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
-update-initramfs -c -k $KVER       # create fresh initramfs for the kernel
+update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
 "
 
 #Copy initramfs for pxe boot
@@ -60,14 +62,14 @@ sudo cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 echo -e "\nsource ~/.bash_aliases" | sudo tee -a ${DEBDIR}/chroot/root/.bashrc
 
 #Install PERCCLI and configure
-sudo cp ${DEBDIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb ${DEBDIR}/chroot/root/perccli.deb
+sudo cp "${DEBDIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
 sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
 dpkg -i /root/perccli.deb
 "
 echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a ${DEBDIR}/chroot/root/.bash_aliases
 
 #Run customizations
-sudo cp ${DEBDIR}/customize.sh ${DEBDIR}/chroot/root/
+sudo cp "${DEBDIR}/customize.sh" "${DEBDIR}/chroot/root/"
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 sh /root/customize.sh
 "
@@ -76,7 +78,7 @@ sh /root/customize.sh
 sudo cp ${DEBDIR}/man_reinstall.sh ${DEBDIR}/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
-sudo cp ${DEBDIR}/man_reinstall.service ${DEBDIR}/chroot/etc/systemd/system
+sudo cp "${DEBDIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 systemctl enable systemd-networkd-wait-online
 systemctl enable man_reinstall.service
@@ -108,11 +110,11 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-sudo rsync -rl --ignore-existing /home/build/compiled/zfs/. ${DEBDIR}/chroot/
+sudo rsync -rl --ignore-existing /home/build/compiled/zfs/. "${DEBDIR}/chroot/"
 
 #Activate modules and zfs systemd service files
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
-depmod -a $KVER
+depmod -a "${kver}"
 "
 
 #Add authorized keys
