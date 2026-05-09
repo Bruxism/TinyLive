@@ -75,7 +75,7 @@ sh /root/customize.sh
 "
 
 #Copy man_reinstall.sh to be run manually when system is booted
-sudo cp ${DEBDIR}/man_reinstall.sh ${DEBDIR}/chroot/root
+sudo cp "${DEBDIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
 sudo cp "${DEBDIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
@@ -96,7 +96,7 @@ echo 'root:root' | chpasswd
 rm /root/perccli.deb
 rm /root/customize.sh
 "
-sudo rm -rf ${DEBDIR}/chroot/boot
+sudo rm -rf "${DEBDIR}"/chroot/boot
 
 #Enable Networking
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
