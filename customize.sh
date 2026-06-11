@@ -25,6 +25,7 @@ cat << EOF >> ~/.vim/vimrc
 syntax enable
 set termguicolors
 set background=dark
+packadd! dracula
 colorscheme dracula
 
 set mouse=a
