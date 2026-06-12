@@ -1,0 +1,12 @@
+[Unit]
+Description=Reinstall man and its pages for all packages
+After=systemd-networkd.target
+Requires=systemd-networkd.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/root/man_reinstall.sh
+
+[Install]
+WantedBy=multi-user.target
