@@ -51,7 +51,7 @@ EOF
 "
 
 #Generate initramfs
-sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
+sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
 "
 
@@ -59,7 +59,7 @@ update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
 sudo cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 
 #Enable Bash aliases
-echo -e "\nsource ~/.bash_aliases" | sudo tee -a ${DEBDIR}/chroot/root/.bashrc
+echo -e "\nsource ~/.bash_aliases" | sudo tee -a "${DEBDIR}/chroot/root/.bashrc"
 
 #Install PERCCLI and configure
 sudo cp "${DEBDIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
@@ -118,7 +118,7 @@ depmod -a "${kver}"
 "
 
 #Add authorized keys
-sudo mkdir -p -m 0700 ${DEBDIR}/chroot/root/.ssh
+sudo mkdir -p -m 0700 "${DEBDIR}/chroot/root/.ssh"
 sudo cp "${DEBDIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
 sudo chmod 0600 ${DEBDIR}/chroot/root/.ssh/authorized_keys
 
