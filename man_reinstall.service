@@ -1,7 +1,7 @@
 [Unit]
 Description=Reinstall man and its pages for all packages
-After=systemd-networkd.target
-Requires=systemd-networkd.target
+After=network-online.target
+Requires=network-online.target
 
 [Service]
 Type=oneshot

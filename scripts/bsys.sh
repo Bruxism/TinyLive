@@ -80,7 +80,6 @@ sudo cp "${DEBDIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
 sudo cp "${DEBDIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
-systemctl enable systemd-networkd-wait-online
 systemctl enable man_reinstall.service
 "
 
@@ -102,7 +101,7 @@ sudo rm -rf "${DEBDIR}"/chroot/boot
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 cat <<'EOF' > /etc/systemd/network/20-dhcp.network
 [Match]
-Name=*
+Name=eno1*
 
 [Network]
 DHCP=yes
