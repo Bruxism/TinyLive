@@ -9,9 +9,20 @@ set -g mouse on
 
 set -g default-terminal "tmux-256color"
 set-option -sa terminal-overrides ",xterm*:Tc"
+
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @resurrect-processes 'watch'
+
+# Always keep on bottom:
+run '~/.tmux/plugins/tpm/tpm'
+
 EOF
 
-
+#Install tmux plugins
+git clone https://github.com/tmux-plugins/tpm /root/.tmux/plugins/tpm
+/root/.tmux/plugins/tpm/bin/install_plugins
 
 
 #Enable color, mouse, and Dracula Theme in VIM

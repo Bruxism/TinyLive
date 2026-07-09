@@ -74,6 +74,10 @@ sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 sh /root/customize.sh
 "
 
+#Copy tmux resurrect session for watching zfs and drive activity
+sudo mkdir -p "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+sudo tar -vxf "${DEBDIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+
 #Copy man_reinstall.sh to be run manually when system is booted
 sudo cp "${DEBDIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
