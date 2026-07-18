@@ -9,6 +9,9 @@ MODULEFILES=/home/build/compiled/modules
 kernel="$(ls ${KERNELFILES}/vmlinuz-*)"
 kver="${kernel#*-}"
 
+#Make sure `/srv/tftp/` exists as it'll be the output
+sudo mkdir -p /srv/tftp
+
 #Remove old chroot
 sudo rm -rf "${DEBDIR}"/chroot
 
