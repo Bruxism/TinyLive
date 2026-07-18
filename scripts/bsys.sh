@@ -70,7 +70,7 @@ sudo cp "${DEBDIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb
 sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
 dpkg -i /root/perccli.deb
 "
-echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a ${DEBDIR}/chroot/root/.bash_aliases
+echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a "${DEBDIR}"/chroot/root/.bash_aliases
 
 #Run customizations
 sudo cp "${DEBDIR}/customize.sh" "${DEBDIR}/chroot/root/"
