@@ -17,7 +17,7 @@ sudo rm -rf "${DEBDIR}"/chroot
 
 #Boostrap Debian rootfs
 sudo debootstrap --arch=amd64 --variant=minbase \
-	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,vim,tmux,tree,dbus,dbus-daemon,libpam-systemd,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
+	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,fastfetch,vim,tmux,tree,dbus,dbus-daemon,libpam-systemd,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable "${DEBDIR}/chroot" http://deb.debian.org/debian
 
 #Copy already built kernel into chroot
