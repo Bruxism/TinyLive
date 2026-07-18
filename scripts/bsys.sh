@@ -1,4 +1,5 @@
 #!/bin/bash
+# `set -e` = stop on any failure
 set -e
 
 export DEBDIR=/home/build/build/debootstrap
