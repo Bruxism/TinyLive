@@ -2,9 +2,16 @@
 # `set -e` = stop on any failure
 set -e
 
-export DEBDIR=/home/build/build/debootstrap
-KERNELFILES=/home/build/compiled/kernel
-MODULEFILES=/home/build/compiled/modules
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
+export DEBDIR="${SCRIPT_DIR%/*}"
+
+CUSTOM_DIR="${DEBDIR}/customizations"
+
+DEPS_DIR="${DEBDIR}/deps/"
+COMPILED_DIR="${DEPS_DIR}/compiled"
+KERNELFILES="${COMPILED_DIR}/kernel"
+MODULEFILES="${COMPILED_DIR}/modules"
 
 kernel="$(ls ${KERNELFILES}/vmlinuz-*)"
 kver="${kernel#*-}"
@@ -66,27 +73,27 @@ sudo cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 echo -e "\nsource ~/.bash_aliases" | sudo tee -a "${DEBDIR}/chroot/root/.bashrc"
 
 #Install PERCCLI and configure
-sudo cp "${DEBDIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
+sudo cp "${DEPS_DIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
 sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
 dpkg -i /root/perccli.deb
 "
 echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a "${DEBDIR}"/chroot/root/.bash_aliases
 
 #Run customizations
-sudo cp "${DEBDIR}/customize.sh" "${DEBDIR}/chroot/root/"
+sudo cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 sh /root/customize.sh
 "
 
 #Copy tmux resurrect session for watching zfs and drive activity
 sudo mkdir -p "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
-sudo tar -vxf "${DEBDIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+sudo tar -vxf "${CUSTOM_DIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
 
 #Copy man_reinstall.sh to be run manually when system is booted
-sudo cp "${DEBDIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
+sudo cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
-sudo cp "${DEBDIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
+sudo cp "${CUSTOM_DIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
 systemctl enable man_reinstall.service
 "
@@ -117,7 +124,7 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-sudo rsync -rl --ignore-existing /home/build/compiled/zfs/. "${DEBDIR}/chroot/"
+sudo rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
 
 #Activate modules and zfs systemd service files
 sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
@@ -126,7 +133,7 @@ depmod -a "${kver}"
 
 #Add authorized keys
 sudo mkdir -p -m 0700 "${DEBDIR}/chroot/root/.ssh"
-sudo cp "${DEBDIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
+sudo cp "${CUSTOM_DIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
 sudo chmod 0600 ${DEBDIR}/chroot/root/.ssh/authorized_keys
 
 #Remove resolv.conf
