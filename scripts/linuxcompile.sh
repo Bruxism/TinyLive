@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 BRANCH="linux-7.1.y"
 
 #Requires:
