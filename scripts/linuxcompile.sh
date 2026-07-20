@@ -6,6 +6,7 @@ BRANCH="linux-7.1.y"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 DEPS_DIR="${SCRIPT_DIR%/*}"/deps
+CUSTOM_DIR="${DEBDIR}/customizations"
 
 LINUX_SRC_DIR="${DEPS_DIR}"/linux
 KERNEL_INSTALL_DIR="${DEPS_DIR}"/compiled/kernel
@@ -43,7 +44,7 @@ fi
 
 git clean -fdx
 
-cp ../kernel_config ./.config
+cp "${CUSTOM_DIR}"/kernel_config ./.config
 
 make olddefconfig
 
