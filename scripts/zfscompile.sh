@@ -11,6 +11,9 @@ KERNEL_SRC_DIR="${DEPS_DIR}"/linux
 ZFS_SRC_DIR="${DEPS_DIR}"/zfs
 INSTALL_DIR="${DEPS_DIR}"/compiled/zfs
 
+#Make source and install directories
+mkdir -p "${ZFS_SRC_DIR}" "${INSTALL_DIR}"
+
 if [[ ! -d "${KERNEL_SRC_DIR}" ]]; then
 	echo "Linux Kernel Directory not detected. ZFS compilation requires it. Exiting..."
 	exit 1
@@ -32,7 +35,6 @@ sh autogen.sh
 
 make -j $(nproc)
 
-mkdir -p "${INSTALL_DIR}"
 rm -rf "${INSTALL_DIR}"/*
 
 make DESTDIR="${INSTALL_DIR}" install -j $(nproc)
