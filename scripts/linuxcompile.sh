@@ -16,6 +16,9 @@ LINUX_SRC_DIR="${DEPS_DIR}"/linux
 KERNEL_INSTALL_DIR="${DEPS_DIR}"/compiled/kernel
 MODULES_INSTALL_DIR="${DEPS_DIR}"/compiled/modules
 
+#Make compile directories
+mkdir -p "${KERNEL_INSTALL_DIR}" "${MODULES_INSTALL_DIR}"
+
 #Check if repo directory exists
 if [[ ! -d "${LINUX_SRC_DIR}/.git" ]]; then
         echo "Repo hasn't been cloned. Cloning now..."
