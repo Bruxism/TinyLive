@@ -8,7 +8,7 @@ export DEBDIR="${SCRIPT_DIR%/*}"
 
 CUSTOM_DIR="${DEBDIR}/customizations"
 
-DEPS_DIR="${DEBDIR}/deps/"
+DEPS_DIR="${DEBDIR}/deps"
 COMPILED_DIR="${DEPS_DIR}/compiled"
 KERNELFILES="${COMPILED_DIR}/kernel"
 MODULEFILES="${COMPILED_DIR}/modules"
