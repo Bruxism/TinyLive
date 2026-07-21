@@ -7,7 +7,9 @@ BRANCH="linux-7.1.y"
 #apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-DEPS_DIR="${SCRIPT_DIR%/*}"/deps
+DEBDIR="${SCRIPT_DIR%/*}"
+
+DEPS_DIR="${DEBDIR}"/deps
 CUSTOM_DIR="${DEBDIR}/customizations"
 
 LINUX_SRC_DIR="${DEPS_DIR}"/linux
