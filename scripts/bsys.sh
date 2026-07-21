@@ -3,9 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-
 export DEBDIR="${SCRIPT_DIR%/*}"
-
 CUSTOM_DIR="${DEBDIR}/customizations"
 
 DEPS_DIR="${DEBDIR}/deps"
