@@ -15,46 +15,46 @@ kernel="$(ls ${KERNELFILES}/vmlinuz-*)"
 kver="${kernel#*-}"
 
 #Make sure `/srv/tftp/` exists as it'll be the output
-sudo mkdir -p /srv/tftp
+mkdir -p /srv/tftp
 
 #Remove old chroot
-sudo rm -rf "${DEBDIR}"/chroot
+rm -rf "${DEBDIR}"/chroot
 
 #Create chroot
 mkdir -p "${DEBDIR}"/chroot
 
 #Boostrap Debian rootfs
-sudo debootstrap --arch=amd64 --variant=minbase \
+debootstrap --arch=amd64 --variant=minbase \
 	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,fastfetch,vim,tmux,tree,dbus,dbus-daemon,libpam-systemd,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable "${DEBDIR}/chroot" http://deb.debian.org/debian
 
 #Copy already built kernel into chroot
-sudo mkdir -p "${DEBDIR}"/chroot/boot
-sudo cp "${KERNELFILES}"/config-* "${DEBDIR}"/chroot/boot/
-sudo cp "${kernel}" "${DEBDIR}"/chroot/boot/
-sudo cp "${kernel}" /srv/tftp/vmlinuz
+mkdir -p "${DEBDIR}"/chroot/boot
+cp "${KERNELFILES}"/config-* "${DEBDIR}"/chroot/boot/
+cp "${kernel}" "${DEBDIR}"/chroot/boot/
+cp "${kernel}" /srv/tftp/vmlinuz
 
 #Copy modules
-sudo rsync -a --no-links "${MODULEFILES}"/lib/. "${DEBDIR}"/chroot/lib/
+rsync -a --no-links "${MODULEFILES}"/lib/. "${DEBDIR}"/chroot/lib/
 
 #Cleanup function
 cleanup_chroot() {
-    sudo umount -l "${DEBDIR}/chroot/dev/pts" || true
-    sudo umount -l "${DEBDIR}/chroot/dev" || true
-    sudo umount -l "${DEBDIR}/chroot/sys" || true
-    sudo umount -l "${DEBDIR}/chroot/proc" || true
+    umount -l "${DEBDIR}/chroot/dev/pts" || true
+    umount -l "${DEBDIR}/chroot/dev" || true
+    umount -l "${DEBDIR}/chroot/sys" || true
+    umount -l "${DEBDIR}/chroot/proc" || true
 }
 trap cleanup_chroot EXIT
 
 #Mount for chroot
-sudo mount --make-rprivate /
-sudo mount -t proc /proc "${DEBDIR}/chroot/proc"
-sudo mount -t sysfs /sys "${DEBDIR}/chroot/sys"
-sudo mount --bind /dev "${DEBDIR}/chroot/dev"
-sudo mount --bind /dev/pts "${DEBDIR}/chroot/dev/pts"
+mount --make-rprivate /
+mount -t proc /proc "${DEBDIR}/chroot/proc"
+mount -t sysfs /sys "${DEBDIR}/chroot/sys"
+mount --bind /dev "${DEBDIR}/chroot/dev"
+mount --bind /dev/pts "${DEBDIR}/chroot/dev/pts"
 
 #Configure initramfs-tools to build without modules
-sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
+chroot "${DEBDIR}"/chroot /bin/bash -c "
 cat <<'EOF' > /etc/initramfs-tools/conf.d/settings.conf
 MODULES=list
 BUSYBOX=y
@@ -63,45 +63,45 @@ EOF
 "
 
 #Generate initramfs
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
 "
 
 #Copy initramfs for pxe boot
-sudo cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
+cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 
 #Enable Bash aliases
-echo -e "\nsource ~/.bash_aliases" | sudo tee -a "${DEBDIR}/chroot/root/.bashrc"
+echo -e "\nsource ~/.bash_aliases" | tee -a "${DEBDIR}/chroot/root/.bashrc"
 
 #Install PERCCLI and configure
-sudo cp "${DEPS_DIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
-sudo chroot "${DEBDIR}"/chroot /bin/bash -c "
+cp "${DEPS_DIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
+chroot "${DEBDIR}"/chroot /bin/bash -c "
 dpkg -i /root/perccli.deb
 "
-echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | sudo tee -a "${DEBDIR}"/chroot/root/.bash_aliases
+echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | tee -a "${DEBDIR}"/chroot/root/.bash_aliases
 
 #Run customizations
-sudo cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 sh /root/customize.sh
 "
 
 #Copy tmux resurrect session for watching zfs and drive activity
-sudo mkdir -p "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
-sudo tar -vxf "${CUSTOM_DIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+mkdir -p "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+tar -vxf "${CUSTOM_DIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
 
 #Copy man_reinstall.sh to be run manually when system is booted
-sudo cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
+cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
-sudo cp "${CUSTOM_DIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+cp "${CUSTOM_DIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 systemctl enable man_reinstall.service
 "
 
 
 #Cleanup unnecessary files
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 rm -rf /var/cache/apt/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* /usr/share/info/*
 apt-get purge -y initramfs-tools git
 apt-get autoremove -y
@@ -111,10 +111,10 @@ echo 'root:root' | chpasswd
 rm /root/perccli.deb
 rm /root/customize.sh
 "
-sudo rm -rf "${DEBDIR}"/chroot/boot
+rm -rf "${DEBDIR}"/chroot/boot
 
 #Enable Networking
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 cat <<'EOF' > /etc/systemd/network/20-dhcp.network
 [Match]
 Name=eno1*
@@ -125,32 +125,32 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-sudo rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
+rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
 
 #Activate modules and zfs systemd service files
-sudo chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /bin/bash -c "
 depmod -a "${kver}"
 "
 
 #Add authorized keys
-sudo mkdir -p -m 0700 "${DEBDIR}/chroot/root/.ssh"
-sudo cp "${CUSTOM_DIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
-sudo chmod 0600 ${DEBDIR}/chroot/root/.ssh/authorized_keys
+mkdir -p -m 0700 "${DEBDIR}/chroot/root/.ssh"
+cp "${CUSTOM_DIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
+chmod 0600 ${DEBDIR}/chroot/root/.ssh/authorized_keys
 
 #Remove resolv.conf
-sudo rm "${DEBDIR}/chroot/etc/resolv.conf"
+rm "${DEBDIR}/chroot/etc/resolv.conf"
 
 #Unmount after chroot
-sudo umount "${DEBDIR}/chroot/dev/pts"
-sudo umount "${DEBDIR}/chroot/dev"
-sudo umount "${DEBDIR}/chroot/sys"
-sudo umount "${DEBDIR}/chroot/proc"
+umount "${DEBDIR}/chroot/dev/pts"
+umount "${DEBDIR}/chroot/dev"
+umount "${DEBDIR}/chroot/sys"
+umount "${DEBDIR}/chroot/proc"
 
 #Clear trap
 trap - EXIT
 
 #Compress the rootfs into a squashfs image
-sudo mksquashfs "${DEBDIR}/chroot" "/srv/tftp/rootfs.squashfs" -comp xz -Xbcj x86 -noappend
+mksquashfs "${DEBDIR}/chroot" "/srv/tftp/rootfs.squashfs" -comp xz -Xbcj x86 -noappend
 
 #Show final size
 ls -lh "/srv/tftp/rootfs.squashfs"
