@@ -1,5 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+USER_AGENT="${USER_AGENT:=Mozilla/5.0 (X11; Linux x86_64; rv:151.0) Gecko/20100101 Firefox/151.0}"
 
 apt-get update
 
@@ -24,7 +25,7 @@ apt-get install -y rsync sudo tar
 
 cd "${SCRIPT_DIR%/*}"
 mkdir -p "./deps/PERCCLI_7.3208.0_Linux_A01"
-wget https://dl.dell.com/FOLDER13074167M/1/PERCCLI_7.3208.0_Linux_A01.tar.gz -U 'anything'
+wget https://dl.dell.com/FOLDER13074167M/1/PERCCLI_7.3208.0_Linux_A01.tar.gz -U "${USER_AGENT}"
 tar xvzf ./PERCCLI_7.3208.0_Linux_A01.tar.gz --transform='s|.*/||' -C "./deps/PERCCLI_7.3208.0_Linux_A01/" "PERCCLI_7.3208.0_Linux_A01/Ubuntu/perccli_007.3208.0000.0000_all.deb"
 
 rm PERCCLI_7.3208.0_Linux_A01.tar.gz
