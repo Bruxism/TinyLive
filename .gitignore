@@ -5,3 +5,4 @@
 !scripts/*
 !customizations/
 !customizations/*
+customizations/authorized_keys
