@@ -49,6 +49,7 @@ shopt -s histappend
 PROMPT_COMMAND='history -a; history -n'
 export HISTSIZE=500000
 export HISTFILESIZE=500000
+echo "export LESS='-R --mouse'" >> ~/.bashrc
 EOF
 
 #Set preferred aliases
