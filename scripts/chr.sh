@@ -21,4 +21,4 @@ mount --bind /dev "${DEBDIR}"/chroot/dev
 mount --bind /dev/pts "${DEBDIR}"/chroot/dev/pts
 
 #Cleanup unnecessary files
-chroot "${DEBDIR}"/chroot /bin/bash 
+chroot "${DEBDIR}"/chroot /bin/bash

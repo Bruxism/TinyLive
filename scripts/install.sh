@@ -6,7 +6,7 @@ apt-get update
 
 # Kernel compile req
 # Conveniently assorted/provided by:
-#  https://www.linux.com/topic/desktop/how-compile-linux-kernel-0/ 
+#  https://www.linux.com/topic/desktop/how-compile-linux-kernel-0/
 apt-get install -y git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison
 
 # Debian Live-Boot req
