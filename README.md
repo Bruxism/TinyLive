@@ -51,7 +51,7 @@ ___
 > [!TIP]
 > Try `mv scripts/rsyncCopy.sh{,.bak}` to rename and append `.bak` without having to type out the path twice.
 
-[customizations/authorized_keys](customizations/authorized_keys) your public ssh keys for remote shell access
+- [customizations/authorized_keys](customizations/authorized_keys) your public ssh keys for remote shell access
 
 ### How to use
 
@@ -72,7 +72,7 @@ ___
 #### scripts/
 
 - `bsys.sh` puts everything together. It runs `debootstrap` to download the packages listed in it. Then, combines that with the Linux Kernel, ZFS, and PERCCLI. You can run this to download and reassemble the `rootfs.squashfs` with the latest packages.
-
+  
   - Currently set up to require `PERCCLI_7.3208.0_Linux_A01`. Feel free to edit that out.
 
 - `linuxcompile.sh` clones and compiles a Linux Kernel. It bases the configuration from [customizations/kernel_config](customizations/kernel_config). Please check `BRANCH=` for what branch it is set to, and change it if necessary.
@@ -82,7 +82,7 @@ ___
 - `rsyncCopy.sh` copies all files in `/srv/tftp` (where these scripts output files into) to a target system.
 
 - `chr.sh` was used for debugging during design. It's not used automatically.
-
+  
   - Requires root or sudo. NOPASSWD option for user in `sudoers` may be required.
 
 #### customizations/
