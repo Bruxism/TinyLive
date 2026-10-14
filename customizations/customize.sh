@@ -50,10 +50,10 @@ shopt -s histappend
 PROMPT_COMMAND='history -a; history -n'
 export HISTSIZE=500000
 export HISTFILESIZE=500000
-echo "export LESS='-R --mouse'" >> ~/.bashrc
 EOF
 
 #Set preferred aliases
 cat << EOF >> ~/.bash_aliases
 alias ls='ls --color=always -h --group-directories-first'
+alias less='less --mouse'
 EOF
