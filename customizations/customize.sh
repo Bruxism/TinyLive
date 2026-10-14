@@ -3,7 +3,7 @@ echo "export TERM=xterm-256color" >> ~/.bashrc
 
 
 #Enable History, mouse, and color in Tmux
-cat << EOF >> ~/.tmux.conf
+cat << 'EOF' >> ~/.tmux.conf
 set -g history-file ~/.tmux_history
 set -g mouse on
 
