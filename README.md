@@ -87,7 +87,7 @@ ___
 
 - `authorized_keys` your ssh public keys to be built into the system so to have remote control
 
-- `customize.sh` a script that runs in the TinyLive system before it is made into a squashfs. I used it for dotfiles relating to vim / tmux + plugins including [**[tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)**](https://github.com/tmux-plugins/tmux-resurrect).
+- `customize.sh` a script that runs in the TinyLive system before it is made into a squashfs. I used it for dotfiles relating to vim / tmux + plugins including [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect).
 
 - `kernel_config` the config file for compiling the Linux Kernel during that stage. The goal was to remove as many modules as possible and build in as many to minimize the kernel size. I did have to include at least one module as OpenZFS would refuse to compile without one--even if modules were enabled.
 
