@@ -17,7 +17,6 @@ set -g @resurrect-processes 'watch'
 
 # Always keep on bottom:
 run '~/.tmux/plugins/tpm/tpm'
-
 EOF
 
 #Install tmux plugins
