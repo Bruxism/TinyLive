@@ -20,8 +20,10 @@ run '~/.tmux/plugins/tpm/tpm'
 EOF
 
 #Install tmux plugins
-git clone https://github.com/tmux-plugins/tpm /root/.tmux/plugins/tpm
-/root/.tmux/plugins/tpm/bin/install_plugins
+#`gawk` needs to be installed for this to work
+#	See: https://github.com/tmux-plugins/tpm/issues/325
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+~/.tmux/plugins/tpm/bin/install_plugins
 
 
 #Enable color, mouse, and Dracula Theme in VIM

@@ -25,7 +25,7 @@ mkdir -p "${DEBDIR}"/chroot
 
 #Boostrap Debian rootfs
 debootstrap --arch=amd64 --variant=minbase \
-	--include=bash,coreutils,apt,less,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,fastfetch,vim,tmux,tree,dbus,dbus-daemon,libpam-systemd,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
+	--include=bash,coreutils,apt,less,gawk,curl,ca-certificates,live-boot,fio,openssh-server,btop,htop,iotop,hdparm,e2fsprogs,parted,sdparm,sysstat,sg3-utils,nvme-cli,smartmontools,fastfetch,vim,tmux,tree,dbus,dbus-daemon,libpam-systemd,iproute2,git,systemd-sysv,udev,pciutils,udhcpc,xz-utils,efibootmgr,initramfs-tools \
 	stable "${DEBDIR}/chroot" http://deb.debian.org/debian
 
 #Copy already built kernel into chroot
@@ -54,7 +54,7 @@ mount --bind /dev "${DEBDIR}/chroot/dev"
 mount --bind /dev/pts "${DEBDIR}/chroot/dev/pts"
 
 #Configure initramfs-tools to build without modules
-chroot "${DEBDIR}"/chroot /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 cat <<'EOF' > /etc/initramfs-tools/conf.d/settings.conf
 MODULES=list
 BUSYBOX=y
@@ -63,7 +63,7 @@ EOF
 "
 
 #Generate initramfs
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
 "
 
@@ -75,14 +75,14 @@ echo -e "\nsource ~/.bash_aliases" | tee -a "${DEBDIR}/chroot/root/.bashrc"
 
 #Install PERCCLI and configure
 cp "${DEPS_DIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
-chroot "${DEBDIR}"/chroot /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i /bin/bash -lc "
 dpkg -i /root/perccli.deb
 "
 echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | tee -a "${DEBDIR}"/chroot/root/.bash_aliases
 
 #Run customizations
 cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
 sh /root/customize.sh
 "
 
@@ -95,13 +95,13 @@ cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
 cp "${CUSTOM_DIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
 systemctl enable man_reinstall.service
 "
 
 
 #Cleanup unnecessary files
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
 rm -rf /var/cache/apt/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* /usr/share/info/*
 apt-get purge -y initramfs-tools git
 apt-get autoremove -y
@@ -114,7 +114,7 @@ rm /root/customize.sh
 rm -rf "${DEBDIR}"/chroot/boot
 
 #Enable Networking
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
 cat <<'EOF' > /etc/systemd/network/20-dhcp.network
 [Match]
 Name=eno1*
@@ -128,7 +128,7 @@ EOF
 rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
 
 #Activate modules and zfs systemd service files
-chroot "${DEBDIR}/chroot" /bin/bash -c "
+chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
 depmod -a "${kver}"
 "
 
