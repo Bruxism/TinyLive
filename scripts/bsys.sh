@@ -64,7 +64,7 @@ EOF
 
 #Generate initramfs
 chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
-update-initramfs -c -k "${kver}"       # create fresh initramfs for the kernel
+update-initramfs -c -k \"${kver}\"       # create fresh initramfs for the kernel
 "
 
 #Copy initramfs for pxe boot
@@ -134,7 +134,7 @@ rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
 
 #Activate modules and zfs systemd service files
 chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
-depmod -a "${kver}"
+depmod -a \"${kver}\"
 "
 
 #Add authorized keys
