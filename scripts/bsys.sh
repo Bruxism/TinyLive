@@ -71,10 +71,10 @@ update-initramfs -c -k \"${kver}\"       # create fresh initramfs for the kernel
 cp "${DEBDIR}"/chroot/boot/initrd.img* /srv/tftp/initramfs.img
 
 #Enable Bash aliases
-echo -e "\nsource ~/.bash_aliases" | tee -a "${DEBDIR}/chroot/root/.bashrc"
+echo -e "\nsource ~/.bash_aliases" | tee -a "${DEBDIR}"/chroot/root/.bashrc
 
 #Install PERCCLI and configure
-cp "${DEPS_DIR}/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb" "${DEBDIR}/chroot/root/perccli.deb"
+cp "${DEPS_DIR}"/PERCCLI_7.3208.0_Linux_A01/perccli_007.3208.0000.0000_all.deb "${DEBDIR}"/chroot/root/perccli.deb
 chroot "${DEBDIR}"/chroot /usr/bin/env -i /bin/bash -lc "
 dpkg -i /root/perccli.deb
 "
@@ -87,7 +87,7 @@ echo \"nameserver 1.1.1.1\" > /etc/resolv.conf
 
 #Run customizations
 cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
-chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 sh /root/customize.sh
 "
 
@@ -100,13 +100,13 @@ cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
 
 #Install man_reinstall.sh service for it to run after boot and an Internet connection is detected
 cp "${CUSTOM_DIR}/man_reinstall.service" "${DEBDIR}/chroot/etc/systemd/system"
-chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 systemctl enable man_reinstall.service
 "
 
 
 #Cleanup unnecessary files
-chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 rm -rf /var/cache/apt/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* /usr/share/info/*
 apt-get purge -y initramfs-tools git
 apt-get autoremove -y
@@ -119,7 +119,7 @@ rm /root/customize.sh
 rm -rf "${DEBDIR}"/chroot/boot
 
 #Enable Networking
-chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 cat <<'EOF' > /etc/systemd/network/20-dhcp.network
 [Match]
 Name=eno1*
@@ -130,32 +130,32 @@ EOF
 "
 
 #Copy ZFS module and /etc files
-rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}/chroot/"
+rsync -rl --ignore-existing "${COMPILED_DIR}"/zfs/. "${DEBDIR}"/chroot/
 
 #Activate modules and zfs systemd service files
-chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
 depmod -a \"${kver}\"
 "
 
 #Add authorized keys
-mkdir -p -m 0700 "${DEBDIR}/chroot/root/.ssh"
-cp "${CUSTOM_DIR}/authorized_keys" "${DEBDIR}/chroot/root/.ssh/"
-chmod 0600 ${DEBDIR}/chroot/root/.ssh/authorized_keys
+mkdir -p -m 0700 "${DEBDIR}"/chroot/root/.ssh
+cp "${CUSTOM_DIR}"/authorized_keys "${DEBDIR}"/chroot/root/.ssh/
+chmod 0600 "${DEBDIR}"/chroot/root/.ssh/authorized_keys
 
 #Remove resolv.conf
-rm "${DEBDIR}/chroot/etc/resolv.conf"
+rm "${DEBDIR}"/chroot/etc/resolv.conf
 
 #Unmount after chroot
-umount "${DEBDIR}/chroot/dev/pts"
-umount "${DEBDIR}/chroot/dev"
-umount "${DEBDIR}/chroot/sys"
-umount "${DEBDIR}/chroot/proc"
+umount "${DEBDIR}"/chroot/dev/pts
+umount "${DEBDIR}"/chroot/dev
+umount "${DEBDIR}"/chroot/sys
+umount "${DEBDIR}"/chroot/proc
 
 #Clear trap
 trap - EXIT
 
 #Compress the rootfs into a squashfs image
-mksquashfs "${DEBDIR}/chroot" "/srv/tftp/rootfs.squashfs" -comp xz -Xbcj x86 -noappend
+mksquashfs "${DEBDIR}"/chroot "/srv/tftp/rootfs.squashfs" -comp xz -Xbcj x86 -noappend
 
 #Show final size
 ls -lh "/srv/tftp/rootfs.squashfs"
