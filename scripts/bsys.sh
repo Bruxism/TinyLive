@@ -80,6 +80,11 @@ dpkg -i /root/perccli.deb
 "
 echo -e "\nalias p='/opt/MegaRAID/perccli/perccli64'" | tee -a "${DEBDIR}"/chroot/root/.bash_aliases
 
+#Add DNS Nameserver
+chroot "${DEBDIR}"/chroot /usr/bin/env -i su -lc /bin/bash -c "
+echo \"nameserver 1.1.1.1\" > /etc/resolv.conf
+"
+
 #Run customizations
 cp "${CUSTOM_DIR}"/customize.sh "${DEBDIR}"/chroot/root/
 chroot "${DEBDIR}/chroot" /usr/bin/env -i su -lc /bin/bash -c "
