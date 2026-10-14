@@ -88,7 +88,7 @@ sh /root/customize.sh
 
 #Copy tmux resurrect session for watching zfs and drive activity
 mkdir -p "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
-tar -vxf "${CUSTOM_DIR}"/session.tar -C "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
+cp -a "${CUSTOM_DIR}"/tmux_session/* "${DEBDIR}"/chroot/root/.local/share/tmux/resurrect
 
 #Copy man_reinstall.sh to be run manually when system is booted
 cp "${CUSTOM_DIR}"/man_reinstall.sh "${DEBDIR}"/chroot/root
