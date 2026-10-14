@@ -1,7 +1,5 @@
 # About
 
-___
-
 TinyLive is a set of scripts that prepares a tiny live-boot Debian-based OS that's around 130 megabytes.
 
 To that end, the final output files are:
