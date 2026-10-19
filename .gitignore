@@ -1,8 +1,6 @@
-*
+/*
 !README.md
 !.gitignore
-!scripts/
-!scripts/*
-!customizations/
-!customizations/*
+!scripts
+!customizations
 customizations/authorized_keys
