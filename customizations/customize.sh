@@ -34,13 +34,14 @@ cd ~/.vim/pack/themes/start
 git clone https://github.com/dracula/vim.git dracula
 
 cat << EOF >> ~/.vim/vimrc
-syntax enable
+set mouse=a
 set termguicolors
 set background=dark
+set hlsearch
+
+syntax enable
 packadd! dracula
 colorscheme dracula
-
-set mouse=a
 EOF
 
 
