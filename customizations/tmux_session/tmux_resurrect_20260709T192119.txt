@@ -1,8 +1,0 @@
-pane	0	0	1	:*	0	debian	:/root	1	bash	:
-pane	0	1	0	:-	0	debian	:/root	0	watch	:watch -c -n1 S_COLORS=always iostat -yx --human 1 1
-pane	0	1	0	:-	1	debian	:/root	1	watch	:watch -n1 zarcstat 1 1
-pane	0	1	0	:-	2	debian	:/root	0	watch	:watch -n1 zpool iostat -vy 1 1
-pane	0	1	0	:-	3	debian	:/root	0	htop	:htop
-window	0	0	:bash	1	:*	c67e,317x84,0,0,1	:
-window	0	1	:watch	0	:-	5cd5,317x84,0,0[317x32,0,0{118x32,0,0,2,99x32,119,0,3,98x32,219,0,4},317x51,0,33,5]	:
-state	0	
