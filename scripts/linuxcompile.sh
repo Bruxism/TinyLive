@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BRANCH="linux-7.1.y"
+BRANCH="linux-7.2.y"
 
 #Requires:
 #apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison
