@@ -35,7 +35,7 @@ if ! git rev-parse --verify --quiet "${BRANCH}" > /dev/null 2>&1; then
 	if git fetch --depth 1 origin "${BRANCH}:${BRANCH}" > /dev/null 2>&1; then
 		git remote set-branches --add origin "${BRANCH}"
 		git switch -f "${BRANCH}"
-		git reset --hard origin/"${BRANCH}" 
+		git reset --hard "${BRANCH}"
 		echo "Branch found and fetched. Deleting other local branches..."
 		git branch | grep -v -E "^\*|${BRANCH}" | xargs git branch -D && \
 		git branch -r | grep -v -E "^\*|origin/${BRANCH}" | xargs git branch -dr 
