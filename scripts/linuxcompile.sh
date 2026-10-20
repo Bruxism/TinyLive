@@ -16,6 +16,11 @@ LINUX_SRC_DIR="${DEPS_DIR}"/linux
 KERNEL_INSTALL_DIR="${DEPS_DIR}"/compiled/kernel
 MODULES_INSTALL_DIR="${DEPS_DIR}"/compiled/modules
 
+clear_other_branches() {
+	git branch | grep -v -E "^\*|${BRANCH}" | xargs git branch -D && \
+	git branch -r | grep -v -E "^\*|origin/${BRANCH}" | xargs git branch -dr
+	}
+
 #Make compile directories
 mkdir -p "${KERNEL_INSTALL_DIR}" "${MODULES_INSTALL_DIR}"
 
@@ -37,17 +42,17 @@ if ! git rev-parse --verify --quiet "${BRANCH}" > /dev/null 2>&1; then
 		git switch -f "${BRANCH}"
 		git reset --hard "${BRANCH}"
 		echo "Branch found and fetched. Deleting other local branches..."
-		git branch | grep -v -E "^\*|${BRANCH}" | xargs git branch -D && \
-		git branch -r | grep -v -E "^\*|origin/${BRANCH}" | xargs git branch -dr 
+		clear_other_branches
 	else
 		echo "Remote branch \"${BRANCH}\" not found. Exiting..."
 		exit 1
 	fi
 else
 	echo "Branch \"${BRANCH}\" found locally. Continuing with fetch, reset, and compile..."
+	echo "Then, clearing other remaining branches."
 	git fetch origin "${BRANCH}"
+	clear_other_branches
 fi
-
 
 git clean -fdx
 
