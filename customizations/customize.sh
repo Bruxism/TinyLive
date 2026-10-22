@@ -39,6 +39,7 @@ set termguicolors
 set background=dark
 set hlsearch
 set tabstop=2
+set autoindent
 
 syntax enable
 packadd! dracula
