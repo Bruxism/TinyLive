@@ -35,12 +35,13 @@ git clone https://github.com/dracula/vim.git dracula
 
 cat << EOF >> ~/.vim/vimrc
 set mouse=a
-set termguicolors
-set background=dark
-set hlsearch
+
 set tabstop=2
 set autoindent
+set hlsearch
 
+set termguicolors
+set background=dark
 syntax enable
 packadd! dracula
 colorscheme dracula
